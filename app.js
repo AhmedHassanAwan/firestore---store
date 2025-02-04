@@ -1,13 +1,15 @@
 
 
-import { collection, addDoc , getDocs , Timestamp ,   query, orderBy ,  deleteDoc , doc, updateDoc  } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+import { collection, addDoc , getDocs , Timestamp ,   query,  deleteDoc , doc, updateDoc ,where   } from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
 
-import { db } from "./config.js";
+import {auth , db } from "./config.js";
 
 const title = document.querySelector("#title");
 const description = document.querySelector("#description");
 const btn = document.querySelector("#btn");
 const div = document.querySelector("#card");
+
+// const array = []
 
 
 btn.addEventListener("click",async(e)=>{
@@ -19,6 +21,7 @@ btn.addEventListener("click",async(e)=>{
     const docRef = await addDoc(collection(db, "users"), {
       title : title.value,
       description : description.value,
+      uid: auth.currentUser.uid,
       date: Timestamp.fromDate(new Date()),
     });
     console.log("Document written with ID: ", docRef.id);
@@ -34,19 +37,22 @@ btn.addEventListener("click",async(e)=>{
 
   async function renderData() {
     const arrray = []
-    const q = query(collection(db, "users"), orderBy("date", "desc"));
+    const q = query(collection(db, "users"), where("uid", "==", auth.currentUser.uid));
+    // const q = query(collection(db, "users"), orderBy("date", "desc"));
     const querySnapshot = await getDocs(q);
     querySnapshot.forEach((doc) => {
     arrray.push({...doc.data(), DocID : doc.id})
 
     });
     console.log(arrray);
+    
+    console.log(arrray);
     div.innerHTML = ""
     arrray.map((items)=>{
       div.innerHTML += `
       <div class="card">
   <div class="card-header">
-    Featured
+    Todo
   </div>
   <div class="card-body">
     <p><strong>Title:</strong> ${items.title}</p>
